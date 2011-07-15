@@ -85,7 +85,11 @@ module Surveyor
         end
       end
     end
-
+    
+    def export
+      @survey = Survey.find_by_access_code(params[:survey_code])
+      render :text => @survey.to_json
+    end
     private
 
     # Filters

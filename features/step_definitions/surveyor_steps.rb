@@ -81,3 +81,8 @@ end
 Then /^I should see the image "([^"]*)"$/ do |src|
   response.should have_selector %(img[src^="#{src}"])
 end
+
+Then /^the json for "([^"]*)" should be$/ do |title, string|
+  visit "/surveys/#{Survey.find_by_title(title).access_code}.json"
+  Surveyor::Common.equal_json_excluding_uuids(response.body, string).should == true
+end
