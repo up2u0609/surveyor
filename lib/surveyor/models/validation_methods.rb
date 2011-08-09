@@ -3,8 +3,8 @@ module Surveyor
     module ValidationMethods
       def self.included(base)
         # Associations
-        base.send :belongs_to, :answer
-        base.send :has_many, :validation_conditions, :dependent => :destroy
+        base.send :belongs_to, :answer, :class_name => "Surveyor::Answer" , :foreign_key => "answer_id"
+        base.send :has_many, :validation_conditions, :dependent => :destroy, :class_name => "Surveyor::ValidationCondition" , :foreign_key => "validation_id"
 
         # Scopes
         

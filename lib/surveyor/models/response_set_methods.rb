@@ -5,9 +5,9 @@ module Surveyor
     module ResponseSetMethods
       def self.included(base)
         # Associations
-        base.send :belongs_to, :survey
-        base.send :belongs_to, :user
-        base.send :has_many, :responses, :dependent => :destroy
+        base.send :belongs_to, :survey , :foreign_key => "survey_id" , :class_name => "Surveyor::Survey"
+        base.send :belongs_to, :user , :foreign_key => "user_id"
+        base.send :has_many, :responses, :dependent => :destroy , :foreign_key => "response_id" , :class_name => "Surveyor::Response"
         base.send :accepts_nested_attributes_for, :responses, :allow_destroy => true
         
         @@validations_already_included ||= nil

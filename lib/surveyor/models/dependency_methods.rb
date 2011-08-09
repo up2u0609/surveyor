@@ -3,9 +3,9 @@ module Surveyor
     module DependencyMethods
       def self.included(base)
         # Associations
-        base.send :belongs_to, :question
-        base.send :belongs_to, :question_group
-        base.send :has_many, :dependency_conditions, :dependent => :destroy
+        base.send :belongs_to, :question, :foreign_key => :question_id, :class_name => "Surveyor::Question"
+        base.send :belongs_to, :question_group, :foreign_key => :question_group_id, :class_name => "Surveyor::QuestionGroup"
+        base.send :has_many, :dependency_conditions, :dependent => :destroy, :foreign_key => :dependency_id , :class_name => "Surveyor::DependencyCondition"
         
         @@validations_already_included ||= nil
         unless @@validations_already_included

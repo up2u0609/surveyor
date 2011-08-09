@@ -3,9 +3,9 @@ module Surveyor
     module ResponseMethods
       def self.included(base)
         # Associations
-        base.send :belongs_to, :response_set
-        base.send :belongs_to, :question
-        base.send :belongs_to, :answer
+        base.send :belongs_to, :response_set , :foreign_key => "response_set_id" , :class_name => "Surveyor::ResponseSet"
+        base.send :belongs_to, :question , :foreign_key => "question_id" , :class_name => "Surveyor::Question"
+        base.send :belongs_to, :answer , :foreign_key => "answer_id" , :class_name => "Surveyor::Answer"
         @@validations_already_included ||= nil
         unless @@validations_already_included
           # Validations

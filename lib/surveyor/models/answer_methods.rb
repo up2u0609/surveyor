@@ -5,9 +5,9 @@ module Surveyor
     module AnswerMethods
       def self.included(base)
         # Associations
-        base.send :belongs_to, :question
-        base.send :has_many, :responses
-        base.send :has_many, :validations, :dependent => :destroy
+        base.send :belongs_to, :question , :foreign_key => "question_id" , :class_name => "Surveyor::Question"
+        base.send :has_many, :responses , :foreign_key => "answer_id" , :class_name => "Surveyor::Response"
+        base.send :has_many, :validations, :dependent => :destroy , :foreign_key => "answer_id" , :class_name => "Surveyor::Validation"
         
         # Scopes
         base.send :default_scope, :order => "display_order ASC"

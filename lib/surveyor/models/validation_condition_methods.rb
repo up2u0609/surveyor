@@ -3,7 +3,7 @@ module Surveyor
     module ValidationConditionMethods
       def self.included(base)
         # Associations
-        base.send :belongs_to, :validation
+        base.send :belongs_to, :validation, :class_name => "Surveyor::Validation" , :foreign_key => "validation_id"
 
         # Scopes
         

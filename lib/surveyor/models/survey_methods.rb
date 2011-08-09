@@ -5,9 +5,9 @@ module Surveyor
     module SurveyMethods
       def self.included(base)
         # Associations
-        base.send :has_many, :sections, :class_name => "SurveySection", :order => 'display_order', :dependent => :destroy
-        base.send :has_many, :sections_with_questions, :include => :questions, :class_name => "SurveySection", :order => 'display_order'
-        base.send :has_many, :response_sets
+        base.send :has_many, :sections, :class_name => "Surveyor::SurveySection", :order => 'display_order', :dependent => :destroy , :foreign_key => "survey_id"
+        base.send :has_many, :sections_with_questions, :include => :questions, :class_name => "Surveyor::SurveySection", :order => 'display_order', :foreign_key => "survey_id"
+        base.send :has_many, :response_sets, :foreign_key => "survey_id", :class_name => "Surveyor::ResponseSet"
 
         # Scopes
         base.send :named_scope, :with_sections, {:include => :sections}

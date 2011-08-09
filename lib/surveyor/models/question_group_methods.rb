@@ -3,8 +3,8 @@ module Surveyor
     module QuestionGroupMethods
       def self.included(base)
         # Associations
-        base.send :has_many, :questions
-        base.send :has_one, :dependency
+        base.send :has_many, :questions , :foreign_key => :question_group_id , :class_name => "Surveyor::Question"
+        base.send :has_one, :dependency , :foreign_key => :question_group_id , :class_name => "Surveyor::Dependency"
       end
       
       # Instance Methods

@@ -1,37 +1,19 @@
-ENV["RAILS_ENV"] ||= "test"
-
-PROJECT_ROOT = File.expand_path("../..", __FILE__)
-$LOAD_PATH << File.join(PROJECT_ROOT, "lib")
-require 'bundler/setup'
-require 'rails/all'
-Bundler.require
-
-require File.expand_path("../dummy/config/environment.rb",  __FILE__)
-require 'rails/test_help'
-require 'rspec'
+# This file is copied to ~/spec when you run 'ruby script/generate rspec'
+# from the project root directory.
+ENV["RAILS_ENV"] ||= 'test'
+require File.expand_path(File.join(File.dirname(__FILE__),'..','spec', 'dummy' ,'config','environment'))
 require 'rspec/rails'
-require 'machinist/active_record'
-require 'sham'
-require 'database_cleaner'
-require 'forgery'
+require 'factories'
 
-require 'rorshack-authentication'
-module RorshackAuthentication
-  class ApplicationController < ActionController::Base
-  end
-  class Account < ActiveRecord::Base
-  end
-end
-Rails.backtrace_cleaner.remove_silencers!
+# Uncomment the next line to use webrat's matchers
+#require 'webrat/integrations/rspec-rails'
 
-# Load support files
-Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
+# Requires supporting files with custom matchers and macros, etc,
+# in ./support/ and its subdirectories.
+Dir[File.expand_path(File.join(File.dirname(__FILE__),'support','**','*.rb'))].each {|f| require f}
 
 RSpec.configure do |config|
   config.mock_with :rspec
+  config.fixture_path = "#{::Rails.root}/spec/fixtures"
   config.use_transactional_fixtures = true
-  config.backtrace_clean_patterns << %r{gems/}
 end
-DatabaseCleaner.strategy = :truncation
-DatabaseCleaner.clean
-require File.expand_path(File.dirname(__FILE__) + '/blueprints')
