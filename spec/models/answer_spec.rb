@@ -2,7 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe Surveyor::Answer, "when creating a new answer" do
   before(:each) do
-    @answer = Factory(:answer, :text => "Red")
+    @answer = Surveyor::Answer.make(:text => "Red")
   end
   
   it "should be valid" do
@@ -33,9 +33,9 @@ describe Surveyor::Answer, "when creating a new answer" do
     @answer.split_or_hidden_text(:post).should == "after|extra"
   end
   it "should delete validation when it is deleted" do
-    v_id = Factory(:validation, :answer => @answer).id
+    v_id = Surveyor::Validation.make(:answer => @answer).id
     @answer.destroy
-    Validation.find_by_id(v_id).should be_nil
+    Surveyor::Validation.find_by_id(v_id).should be_nil
   end
   
   it "should have an api_id" do

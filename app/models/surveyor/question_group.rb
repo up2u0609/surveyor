@@ -1,6 +1,8 @@
 require "surveyor/models/question_group_methods"
-class QuestionGroup < ActiveRecord::Base
-  unloadable
-  include Surveyor::Models::QuestionGroupMethods
-  
+module Surveyor
+  class QuestionGroup < ActiveRecord::Base
+    unloadable
+    include Surveyor::Models::QuestionGroupMethods
+    
+  end
 end

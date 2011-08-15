@@ -2,7 +2,7 @@ require File.expand_path('../boot', __FILE__)
 
 require 'rails/all'
 require 'thread'
-require 'rake/dsl_definition'
+require 'rake/dsl_definition' unless Rails.env.test?
 Bundler.require
 require "surveyor"
 

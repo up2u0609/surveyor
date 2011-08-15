@@ -8,10 +8,12 @@ gem 'fastercsv'
 gem 'formtastic'
 gem 'uuid'
 gem "yard", ">= 0"
-gem "sqlite3"
+gem 'sqlite3', :group => [:development, :test]
+gem "ruby-debug", :group => [:development, :test]
+gem "arel", "2.1.4"
 gem 'rspec-rails', '>= 2.0.1', :group => [:development, :test]
-gem "factory_girl" , :group => [:test]
 
-if RUBY_VERSION < '1.9'
-  gem "ruby-debug", ">= 0.10.3"
-end
+gem "forgery" , "0.3.10", :group => :test
+gem 'machinist', :group => :test
+gem "database_cleaner" , :group => :test
+
