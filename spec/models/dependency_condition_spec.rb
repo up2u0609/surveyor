@@ -9,7 +9,8 @@ describe Surveyor::DependencyCondition do
   end  
   describe "instance" do
     before(:each) do
-      @dependency_condition = Surveyor::DependencyCondition.new(:dependency_id => 1, :question_id => 45, :operator => "==", :answer_id => 23, :rule_key => "1")
+      @default_answer = Surveyor::Answer.make(:question_id => 45, :response_class => "answer")
+      @dependency_condition = Surveyor::DependencyCondition.new(:dependency_id => 1, :question_id => 45, :operator => "==", :answer => @default_answer, :rule_key => "1")
     end
 
     it "should be valid" do
@@ -55,13 +56,11 @@ describe Surveyor::DependencyCondition do
     end
 
     it "should evaluate within the context of a response set object" do
-      @response = Surveyor::Response.new(:question_id => 45, :response_set_id => 40, :answer_id => 23)
-      @response.answer = Surveyor::Answer.new(:question_id => 45, :response_class => "answer")
+      @response = Surveyor::Response.make(:question_id => 45, :response_set_id => 40 , :answer_id => @default_answer.id )
       @dependency_condition.is_met?([@response]).should be_true
       # inversion
-      @alt_response = Surveyor::Response.new(:question_id => 45, :response_set_id => 40, :answer_id => 55)
-      @alt_response.answer = Surveyor::Answer.new(:question_id => 45, :response_class => "answer")
-
+      answer = Surveyor::Answer.make(:question_id => 45, :response_class => "answer")
+      @alt_response = Surveyor::Response.make(:question_id => 45, :response_set_id => 40 , :answer_id => answer.id)
       @dependency_condition.is_met?([@alt_response]).should be_false
     end
   
@@ -103,16 +102,20 @@ describe Surveyor::DependencyCondition do
   end
   describe "when if given a response object whether the dependency is satisfied using '=='" do
     before(:each) do
-      @dep_c = Surveyor::DependencyCondition.new(:answer_id => 2, :operator => "==")
-      @select_answer = Surveyor::Answer.new(:question_id => 1, :response_class => "answer")
-      @response = Surveyor::Response.new(:question_id => 314, :response_set_id => 159, :answer_id => 2)
-      @response.answer = @select_answer
-      @dep_c.answer = @select_answer
-      @dep_c.as(:answer).should == 2
-      @response.as(:answer).should == 2
+      @select_answer = Surveyor::Answer.make(:question_id => 1, :response_class => "answer")
+      @dep_c = Surveyor::DependencyCondition.create(:answer_id => @select_answer.id, :operator => "==" , :rule_key => "K")
+      @response = Surveyor::Response.make(:question_id => 314, :response_set_id => 159, :answer_id => @select_answer.id)
+#      @response.answer = @select_answer
+#      @dep_c.answer = @select_answer
+      @dep_c.as(:answer).should == @select_answer.id
+      @response.as(:answer).should == @select_answer.id
       @dep_c.as(:answer).should == @response.as(:answer)
     end
-
+    
+    after(:each) do
+      @dep_c.delete
+    end
+    
     it "knows checkbox/radio type response" do
       @dep_c.is_met?([@response]).should be_true
       @dep_c.answer_id = 12
@@ -121,6 +124,7 @@ describe Surveyor::DependencyCondition do
 
     it "knows string value response" do
       @select_answer.response_class = "string"
+      @select_answer.save
       @response.string_value = "hello123"
       @dep_c.string_value = "hello123"
       @dep_c.is_met?([@response]).should be_true
@@ -130,6 +134,7 @@ describe Surveyor::DependencyCondition do
 
     it "knows a text value response" do
       @select_answer.response_class = "text"
+      @select_answer.save
       @response.text_value = "hello this is some text for comparison"
       @dep_c.text_value = "hello this is some text for comparison"
       @dep_c.is_met?([@response]).should be_true
@@ -139,6 +144,7 @@ describe Surveyor::DependencyCondition do
 
     it "knows an integer value response" do
       @select_answer.response_class = "integer"
+      @select_answer.save
       @response.integer_value = 10045
       @dep_c.integer_value = 10045
       @dep_c.is_met?([@response]).should be_true
@@ -148,6 +154,7 @@ describe Surveyor::DependencyCondition do
 
     it "knows a float value response" do
       @select_answer.response_class = "float"
+      @select_answer.save
       @response.float_value = 121.1
       @dep_c.float_value = 121.1
       @dep_c.is_met?([@response]).should be_true
@@ -159,13 +166,13 @@ describe Surveyor::DependencyCondition do
 
   describe "when if given a response object whether the dependency is satisfied using '!='" do
     before(:each) do
-      @dep_c = Surveyor::DependencyCondition.new(:answer_id => 2, :operator => "!=")
-      @select_answer = Surveyor::Answer.new(:question_id => 1, :response_class => "answer")
-      @response = Surveyor::Response.new(:question_id => 314, :response_set_id => 159, :answer_id => 2)
-      @response.answer = @select_answer
-      @dep_c.answer = @select_answer
-      @dep_c.as(:answer).should == 2
-      @response.as(:answer).should == 2
+      @select_answer = Surveyor::Answer.make(:question_id => 1, :response_class => "answer")
+      @dep_c = Surveyor::DependencyCondition.create(:answer_id => @select_answer.id, :operator => "!=")
+      @response = Surveyor::Response.make(:question_id => 314, :response_set_id => 159, :answer_id => @select_answer.id)
+#      @response.answer = @select_answer
+#      @dep_c.answer = @select_answer
+      @dep_c.as(:answer).should == @select_answer.id
+      @response.as(:answer).should == @select_answer.id
       @dep_c.as(:answer).should == @response.as(:answer)
     end
 
@@ -177,6 +184,7 @@ describe Surveyor::DependencyCondition do
 
     it "knows string value response" do
       @select_answer.response_class = "string"
+      @select_answer.save
       @response.string_value = "hello123"
       @dep_c.string_value = "hello123"
       @dep_c.is_met?([@response]).should be_false
@@ -186,6 +194,7 @@ describe Surveyor::DependencyCondition do
 
     it "knows a text value response" do
       @select_answer.response_class = "text"
+      @select_answer.save
       @response.text_value = "hello this is some text for comparison"
       @dep_c.text_value = "hello this is some text for comparison"
       @dep_c.is_met?([@response]).should be_false
@@ -195,6 +204,7 @@ describe Surveyor::DependencyCondition do
 
     it "knows an integer value response" do
       @select_answer.response_class = "integer"
+      @select_answer.save
       @response.integer_value = 10045
       @dep_c.integer_value = 10045
       @dep_c.is_met?([@response]).should be_false
@@ -204,6 +214,7 @@ describe Surveyor::DependencyCondition do
 
     it "knows a float value response" do
       @select_answer.response_class = "float"
+      @select_answer.save
       @response.float_value = 121.1
       @dep_c.float_value = 121.1
       @dep_c.is_met?([@response]).should be_false
@@ -343,7 +354,7 @@ describe Surveyor::DependencyCondition do
   describe "when evaluating a pick one/many with response_class e.g. string" do
     it "should compare answer ids when the string_value is nil" do
       a = Surveyor::Answer.make(:response_class => "string")
-      dc = Surveyor::DependencyCondition.make (:question_id => a.question.id, :answer_id => a.id, :operator => "==")
+      dc = Surveyor::DependencyCondition.make(:question_id => a.question.id, :answer_id => a.id, :operator => "==")
       r = Surveyor::Response.make(:question_id => a.question.id, :answer_id => a.id, :string_value => "")
       r.should_receive(:as).with("answer").and_return(a.id)
       dc.is_met?([r]).should be_true
@@ -355,7 +366,7 @@ describe Surveyor::DependencyCondition do
       r.should_receive(:as).with("string").and_return("foo")
       dc.is_met?([r]).should be_true      
 
-      dc2 = Surveyor::DependencyCondition.make( :question_id => a.question.id, :answer_id => a.id, :operator => "==", :string_value => "")
+      dc2 = Surveyor::DependencyCondition.make( :question_id => a.question.id, :answer_id => a.id, :operator => "==", :string_value => "" , :rule_key => "B")
       r2 = Surveyor::Response.make( :question_id => a.question.id, :answer_id => a.id, :string_value => "")
       r2.should_receive(:as).with("string").and_return("")
       dc2.is_met?([r2]).should be_true      

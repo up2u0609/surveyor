@@ -9,7 +9,8 @@ module Surveyor
         @@validations_already_included ||= nil
         unless @@validations_already_included
           # Validations
-          base.send :validates_presence_of, :response_set_id, :question_id, :answer_id
+          base.send :validates_presence_of, :response_set_id, :question_id
+          base.send :validates_associated, :answer
           
           @@validations_already_included = true
         end
@@ -20,8 +21,8 @@ module Surveyor
           def applicable_attributes(attrs)
             result = HashWithIndifferentAccess.new(attrs)
             answer_id = result[:answer_id].is_a?(Array) ? result[:answer_id].last : result[:answer_id] # checkboxes are arrays / radio buttons are not arrays
-            if result[:string_value] && !answer_id.blank? && Answer.exists?(answer_id)
-              answer = Answer.find(answer_id)
+            if result[:string_value] && !answer_id.blank? && Surveyor::Answer.exists?(answer_id)
+              answer = Surveyor::Answer.find(answer_id)
               result.delete(:string_value) unless answer.response_class && answer.response_class.to_sym == :string
             end
             result

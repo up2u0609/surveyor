@@ -1,6 +1,6 @@
 source "http://rubygems.org"
 
-gem 'rails', '3.1.0.rc4'
+gem 'rails', '3.1.0.rc8'
 
 gem 'haml'
 gem 'sass'
@@ -10,7 +10,6 @@ gem 'uuid'
 gem "yard", ">= 0"
 gem 'sqlite3', :group => [:development, :test]
 gem "ruby-debug", :group => [:development, :test]
-gem "arel", "2.1.4"
 gem 'rspec-rails', '>= 2.0.1', :group => [:development, :test]
 
 gem "forgery" , "0.3.10", :group => :test

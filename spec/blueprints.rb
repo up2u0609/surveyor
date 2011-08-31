@@ -3,7 +3,7 @@ require File.expand_path(File.dirname(__FILE__) + '/shams')
 Surveyor::Survey.blueprint do
   title         {"Simple survey"}
   description   {"A simple survey for testing"}
-  access_code   { Sham.small_number }
+  access_code   { Sham.big_number }
   active_at     {Time.now}
   inactive_at   {}
   css_url       {}
@@ -81,9 +81,7 @@ Surveyor::DependencyCondition.blueprint do
   dependency # d.dependency_id    {}
   rule_key          {"A"}
   # the conditional question
-  question_id       {}
   operator          {"=="}
-  answer_id         {}
   datetime_value    {}
   integer_value     {}
   float_value       {}
