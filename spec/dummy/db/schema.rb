@@ -112,6 +112,7 @@ ActiveRecord::Schema.define(:version => 20110809074428) do
   create_table "surveyor_responses", :force => true do |t|
     t.integer  "response_set_id"
     t.integer  "question_id"
+    t.integer  "response_id"
     t.integer  "answer_id"
     t.datetime "datetime_value"
     t.integer  "integer_value"

@@ -4,6 +4,8 @@ class CreateResponses < ActiveRecord::Migration
       # Context
       t.integer :response_set_id
       t.integer :question_id
+      
+      t.integer :response_id
 
       # Content                    
       t.integer :answer_id         
