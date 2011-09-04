@@ -29,4 +29,11 @@ class SurveyorGenerator < Rails::Generators::Base
         migration_template "migrate/#{m}.rb" , "db/migrate/#{m}.rb"
     end
   end
+  
+  def copy_locales
+    empty_directory "config/locales"
+    Dir.glob(File.join(File.dirname(__FILE__), "templates", "locales", "*.yml")).map{|path| File.basename(path)}.each do |filename|
+      copy_file "locales/#{filename}", "config/locales/#{filename}"
+    end
+  end
 end

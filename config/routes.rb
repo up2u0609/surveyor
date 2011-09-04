@@ -1,4 +1,6 @@
 Surveyor::Engine.routes.draw do
+#  resources :surveyor , :only => [:new , :create , :edit , :show , :update]
+
   match "results" => "results#index" , :as => "results"
   match "results/:survey_code" => "results#show" , :as => "result"
   
