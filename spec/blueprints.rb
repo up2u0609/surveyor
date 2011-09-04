@@ -102,8 +102,8 @@ end
 Surveyor::Response.blueprint do
   response_set # r.response_set_id   {}
   survey_section_id {}
-  question_id       {}
-  answer_id         {}
+  question       {}
+  answer         {}
   datetime_value    {}
   integer_value     {}
   float_value       {}

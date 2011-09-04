@@ -7,7 +7,7 @@ module Surveyor
         # Associations
         base.send :belongs_to, :survey , :foreign_key => "survey_id" , :class_name => "Surveyor::Survey"
         base.send :belongs_to, :user , :foreign_key => "user_id"
-        base.send :has_many, :responses, :dependent => :destroy , :foreign_key => "response_id" , :class_name => "Surveyor::Response"
+        base.send :has_many, :responses, :dependent => :destroy , :foreign_key => "response_set_id" , :class_name => "Surveyor::Response"
         base.send :accepts_nested_attributes_for, :responses, :allow_destroy => true
         
         @@validations_already_included ||= nil
@@ -28,7 +28,7 @@ module Surveyor
           def reject_or_destroy_blanks(hash_of_hashes)
             result = {}
             (hash_of_hashes || {}).each_pair do |k, hash|
-              hash = Response.applicable_attributes(hash)
+              hash = Surveyor::Response.applicable_attributes(hash)
               if has_blank_value?(hash)
                 result.merge!({k => hash.merge("_destroy" => "true")}) if hash.has_key?("id")
               else
@@ -39,7 +39,7 @@ module Surveyor
           end
           def has_blank_value?(hash)
             return true if hash["answer_id"].blank?
-            return false if (q = Question.find_by_id(hash["question_id"])) and q.pick == "one"
+            return false if (q = Surveyor::Question.find_by_id(hash["question_id"])) and q.pick == "one"
             hash.any?{|k,v| v.is_a?(Array) ? v.all?{|x| x.to_s.blank?} : v.to_s.blank?}
           end
           def trim_for_lookups(hash_of_hashes)
@@ -153,9 +153,9 @@ module Surveyor
       protected
       
       def dependencies(question_ids = nil)
-        deps = Dependency.all(:include => :dependency_conditions, :conditions => {:dependency_conditions => {:question_id => question_ids || responses.map(&:question_id)}})
+        deps = Surveyor::Dependency.all(:include => :dependency_conditions, :conditions => {:surveyor_dependency_conditions => {:question_id => (question_ids || responses.map(&:question_id))}})
         # this is a work around for a bug in active_record in rails 2.3 which incorrectly eager-loads associatins when a condition clause includes an association limiter
-        deps.each{|d| d.dependency_conditions.reload} 
+        deps.each{|d| d.dependency_conditions.reload}
         deps
       end
     end

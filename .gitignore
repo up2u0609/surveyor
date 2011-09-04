@@ -25,3 +25,6 @@ testbed/.bundle
 testbed/*
 surveys/fixtures/*.yml
 .rvmrc
+
+spec/dummy/log/*
+spec/dummy/db/*.sqlite3

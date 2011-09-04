@@ -52,6 +52,7 @@ describe Surveyor::ResponseSet do
     # adding a checkbox
     @response_set.update_attributes(:responses_attributes => Surveyor::ResponseSet.reject_or_destroy_blanks({"1"=>{"question_id"=>"9", "answer_id"=>"13"}}))
     @response_set.responses.should have(3).items
+    @response_set.responses.map(&:id) - initial_response_ids
     (@response_set.responses.map(&:id) - initial_response_ids).size.should == 1
   end
   
@@ -157,7 +158,7 @@ end
 
 describe Surveyor::ResponseSet, "with dependencies" do
   before(:each) do
-    @section = Surveyor::ResponseSet.make
+    @section = Surveyor::SurveySection.make
     # Questions
     @do_you_like_pie = Surveyor::Question.make( :text => "Do you like pie?", :survey_section => @section)
     @what_flavor = Surveyor::Question.make( :text => "What flavor?", :survey_section => @section)
@@ -168,9 +169,9 @@ describe Surveyor::ResponseSet, "with dependencies" do
     @what_flavor.answers << Surveyor::Answer.make( :response_class => :string, :question_id => @what_flavor.id)
     @what_bakery.answers << Surveyor::Answer.make( :response_class => :string, :question_id => @what_bakery.id)
     # Dependency
-    @what_flavor_dep = Surveyor::Dependency.make( :rule => "A", :question_id => @what_flavor.id)
+    @what_flavor_dep = Surveyor::Dependency.make( :rule => "A", :question_id => @what_flavor.id , :question_group => nil)
     Surveyor::DependencyCondition.make( :rule_key => "A", :question_id => @do_you_like_pie.id, :operator => "==", :answer_id => @do_you_like_pie.answers.first.id, :dependency_id => @what_flavor_dep.id)
-    @what_bakery_dep = Surveyor::Dependency.make( :rule => "B", :question_id => @what_bakery.id)
+    @what_bakery_dep = Surveyor::Dependency.make( :rule => "B", :question_id => @what_bakery.id , :question_group => nil)
     Surveyor::DependencyCondition.make( :rule_key => "B", :question_id => @do_you_like_pie.id, :operator => "==", :answer_id => @do_you_like_pie.answers.first.id, :dependency_id => @what_bakery_dep.id)
     # Responses
     @response_set = Surveyor::ResponseSet.make
@@ -189,7 +190,7 @@ describe Surveyor::ResponseSet, "with dependencies" do
     crust_group = Surveyor::QuestionGroup.make(  :text => "Favorite Crusts")
     
     # Question
-    what_crust = Surveyor::QuestionGroup.make(  :text => "What is your favorite curst type?", :survey_section => @section)
+    what_crust = Surveyor::Question.make( :text => "What is your favorite curst type?", :survey_section => @section )
     crust_group.questions << what_crust
 
     # Answers
@@ -248,16 +249,17 @@ end
 
 describe Surveyor::ResponseSet, "as a quiz" do
   before(:each) do
-    @survey =  Surveyor::Survay.make
+    @survey =  Surveyor::Survey.make
     @section =  Surveyor::SurveySection.make( :survey => @survey)
     @response_set =  Surveyor::ResponseSet.make( :survey => @survey)
   end
   def generate_responses(count, quiz = nil, correct = nil)
     count.times do |i|
-      q =  Surveyor::Question.make( :survey_section => @section)
+      q =  Surveyor::Question.make( :survey_section => @section )
       a =  Surveyor::Answer.make( :question => q, :response_class => "answer")
       x =  Surveyor::Answer.make( :question => q, :response_class => "answer")
       q.correct_answer_id = (quiz == "quiz" ? a.id : nil)
+      q.save
       @response_set.responses <<  Surveyor::Response.make( :question => q, :answer => (correct == "correct" ? a : x))
     end
   end
@@ -280,7 +282,7 @@ describe Surveyor::ResponseSet, "as a quiz" do
 end
 describe Surveyor::ResponseSet, "with mandatory questions" do
   before(:each) do
-    @survey =  Surveyor::Survay.make
+    @survey =  Surveyor::Survey.make
     @section =  Surveyor::SurveySection.make( :survey => @survey)
     @response_set =  Surveyor::ResponseSet.make( :survey => @survey)
   end
@@ -318,7 +320,7 @@ describe Surveyor::ResponseSet, "with mandatory questions" do
 end
 describe Surveyor::ResponseSet, "with mandatory, dependent questions" do
   before(:each) do
-    @survey =  Surveyor::Survay.make
+    @survey =  Surveyor::Survey.make
     @section =  Surveyor::SurveySection.make( :survey => @survey)
     @response_set =  Surveyor::ResponseSet.make( :survey => @survey)
   end
@@ -330,8 +332,9 @@ describe Surveyor::ResponseSet, "with mandatory, dependent questions" do
       q =  Surveyor::Question.make( :survey_section => @section, :is_mandatory => (mandatory == "mandatory"))
       a =  Surveyor::Answer.make( :question => q, :response_class => "answer")
       if dependent == "dependent"
-        d =  Surveyor::Dependency.make( :question => q)
-        dc =  Surveyor::DependencyCondition.make( :dependency => d, :question_id => dq.id, :answer_id => da.id)
+        rn = ("A".."Z").to_a.sample
+        d =  Surveyor::Dependency.make( :question => q , :rule => rn)
+        dc =  Surveyor::DependencyCondition.make( :dependency => d, :question_id => dq.id, :answer_id => da.id , :rule_key => rn )
       end
       @response_set.responses <<  Surveyor::Response.make( :question => dq, :answer => (triggered == "triggered" ? da : dx))
       @response_set.responses <<  Surveyor::Response.make( :question => q, :answer => a)
