@@ -9,7 +9,7 @@ module Surveyor
         @@validations_already_included ||= nil
         unless @@validations_already_included
           # Validations
-          base.send :validates_presence_of, :response_set_id
+          base.send :validates_presence_of, :response_set_id , :question_id
           base.send :validates_associated, :answer , :question
           
           @@validations_already_included = true
@@ -36,6 +36,8 @@ module Surveyor
       end
       def correct?
         question.correct_answer_id.nil? or self.answer.response_class != "answer" or (question.correct_answer_id.to_i == answer_id.to_i)
+      rescue
+        false
       end
 
       def to_s # used in dependency_explanation_helper
