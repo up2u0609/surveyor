@@ -2,7 +2,8 @@ require "surveyor/engine"
 require 'surveyor/common'
 require 'surveyor/acts_as_response'
 require 'formtastic/surveyor_builder'
-
+require "surveyor/parser"
+#require 'tasks/surveyor'
 Formtastic::SemanticFormHelper.builder = Formtastic::SurveyorBuilder
 Formtastic::SemanticFormBuilder.default_text_area_height = 5
 Formtastic::SemanticFormBuilder.default_text_area_width = 50

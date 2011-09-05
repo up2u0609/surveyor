@@ -1,4 +1,4 @@
-%w(survey survey_section question_group question dependency dependency_condition answer validation validation_condition).each {|model| require model }
+#%w(survey survey_section question_group question dependency dependency_condition answer validation validation_condition).each {|model| require "surveyor/#{model}" }
 module Surveyor
   class Parser
     # Attributes
@@ -16,6 +16,7 @@ module Surveyor
       self.context = {}
     end
     def parse(str)
+      debugger
       instance_eval(str)
       return context[:survey]
     end
@@ -31,7 +32,7 @@ module Surveyor
       raise "Error: Dropping the #{type.humanize} block like it's hot!" if !block_models.include?(type) && block_given?
       
       # parse and build
-      type.classify.constantize.parse_and_build(context, args, method_name, reference_identifier)
+      "surveyor/#{type}".classify.constantize.parse_and_build(context, args, method_name, reference_identifier)
       
       # evaluate and clear context for block models
       if block_models.include?(type)
@@ -68,8 +69,9 @@ module Surveyor
 end
 
 # Surveyor models with extra parsing methods
-class Survey < ActiveRecord::Base
+class Surveyor::Survey < ActiveRecord::Base
   # block
+  has_many :sections, :class_name => "Surveyor::SurveySection", :order => 'display_order', :dependent => :destroy , :foreign_key => "survey_id"
   
   def self.parse_and_build(context, args, original_method, reference_identifier)
     # clear context
@@ -88,8 +90,9 @@ class Survey < ActiveRecord::Base
     context[:answer_references] = {}
   end
 end
-class SurveySection < ActiveRecord::Base
+class Surveyor::SurveySection < ActiveRecord::Base
   # block
+  has_many :questions, :order => "display_order ASC", :dependent => :destroy, :class_name => "Surveyor::Question" , :foreign_key => :survey_section_id
   
   def self.parse_and_build(context, args, original_method, reference_identifier)
     # clear context
@@ -103,9 +106,10 @@ class SurveySection < ActiveRecord::Base
     context.delete_if{|k,v| !%w(survey question_references answer_references).map(&:to_sym).include?(k)}
   end
 end
-class QuestionGroup < ActiveRecord::Base
+class Surveyor::QuestionGroup < ActiveRecord::Base
   # block
-  
+  has_many :questions , :foreign_key => :question_group_id , :class_name => "Surveyor::Question"
+  has_one :dependency , :foreign_key => :question_group_id , :class_name => "Surveyor::Dependency"
   def self.parse_and_build(context, args, original_method, reference_identifier)
     # clear context
     context.delete_if{|k,v| !%w(survey survey_section question_references answer_references).map(&:to_sym).include?(k)}
@@ -119,12 +123,17 @@ class QuestionGroup < ActiveRecord::Base
     context.delete_if{|k,v| !%w(survey survey_section question_references answer_references).map(&:to_sym).include?(k)}
   end
 end
-class Question < ActiveRecord::Base
+class Surveyor::Question < ActiveRecord::Base
   # nonblock
   
   # attributes
   attr_accessor :correct, :context_reference
   before_save :resolve_correct_answers
+  belongs_to :survey_section , :foreign_key => "survey_section_id" , :class_name => "Surveyor::SurveySection"
+  belongs_to :question_group, :dependent => :destroy , :foreign_key => "question_group_id" , :class_name => "Surveyor::QuestionGroup"
+  has_many :answers, :order => "display_order ASC", :dependent => :destroy , :foreign_key => :question_id , :class_name => "Surveyor::Answer" # it might not always have answers
+  has_one :dependency, :dependent => :destroy, :foreign_key => :question_id , :class_name => "Surveyor::Dependency"
+  has_one :correct_answer, :dependent => :destroy, :foreign_key => :question_id , :class_name => "Surveyor::Answer"
   
   def self.parse_and_build(context, args, original_method, reference_identifier)
     # clear context
@@ -160,9 +169,11 @@ class Question < ActiveRecord::Base
     end
   end
 end
-class Dependency < ActiveRecord::Base
+class Surveyor::Dependency < ActiveRecord::Base
   # nonblock
-  
+  has_many :dependency_conditions, :dependent => :destroy, :foreign_key => :dependency_id , :class_name => "Surveyor::DependencyCondition"
+  belongs_to :question_group, :foreign_key => :question_group_id, :class_name => "Surveyor::QuestionGroup"
+  belongs_to :question, :foreign_key => :question_id, :class_name => "Surveyor::Question"
   def self.parse_and_build(context, args, original_method, reference_identifier)
     # clear context
     context.delete_if{|k,v| %w(dependency dependency_condition).map(&:to_sym).include? k}
@@ -175,9 +186,12 @@ class Dependency < ActiveRecord::Base
     end
   end
 end
-class DependencyCondition < ActiveRecord::Base
+class Surveyor::DependencyCondition < ActiveRecord::Base
   # nonblock
-  
+  belongs_to :answer , :foreign_key => "answer_id" , :class_name => "Surveyor::Answer"
+  belongs_to :dependency , :foreign_key => "dependency_id" , :class_name => "Surveyor::Dependency"
+  belongs_to :dependent_question, :foreign_key => :question_id, :class_name => "Surveyor::Question"
+  belongs_to :question, :foreign_key => :question_id, :class_name => "Surveyor::Question"
   attr_accessor :question_reference, :answer_reference, :context_reference
   before_save :resolve_references
   
@@ -211,8 +225,12 @@ class DependencyCondition < ActiveRecord::Base
   end
 end
 
-class Answer < ActiveRecord::Base
+class Surveyor::Answer < ActiveRecord::Base
   # nonblock
+  
+  belongs_to :question , :foreign_key => "question_id" , :class_name => "Surveyor::Question"
+  has_many :responses , :foreign_key => "answer_id" , :class_name => "Surveyor::Response"
+  has_many :validations, :dependent => :destroy , :foreign_key => "answer_id" , :class_name => "Surveyor::Validation"
   
   def self.parse_and_build(context, args, original_method, reference_identifier)
     # clear context
@@ -262,8 +280,10 @@ class Answer < ActiveRecord::Base
     end
   end
 end
-class Validation < ActiveRecord::Base
+class Surveyor::Validation < ActiveRecord::Base
   # nonblock
+  belongs_to :answer, :class_name => "Surveyor::Answer" , :foreign_key => "answer_id"
+  has_many :validation_conditions, :dependent => :destroy, :class_name => "Surveyor::ValidationCondition" , :foreign_key => "validation_id"
   
   def self.parse_and_build(context, args, original_method, reference_identifier)
     # clear context
@@ -273,9 +293,9 @@ class Validation < ActiveRecord::Base
     context[:validation] = context[:answer].validations.build({:rule => "A"}.merge(args[0] || {}))
   end
 end
-class ValidationCondition < ActiveRecord::Base
+class Surveyor::ValidationCondition < ActiveRecord::Base
   # nonblock
-  
+  belongs_to :validation, :class_name => "Surveyor::Validation" , :foreign_key => "validation_id"
   def self.parse_and_build(context, args, original_method, reference_identifier)
     # clear context
     context.delete_if{|k,v| k == :validation_condition}
