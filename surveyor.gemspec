@@ -5,5 +5,5 @@ Gem::Specification.new do |s|
   s.summary = "Insert Surveyor summary."
   s.description = "Insert Surveyor description."
   s.files = Dir["lib/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]
-  s.version = "0.0.1"
+  s.version = "0.0.2"
 end

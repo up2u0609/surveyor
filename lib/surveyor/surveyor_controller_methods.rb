@@ -7,7 +7,7 @@ module Surveyor
 
     # Actions
     def new
-      @surveys = Survey.find(:all)
+      @surveys = Surveyor::Survey.all
       @title = "You can take these surveys"
       redirect_to surveyor_index unless surveyor_index == available_surveys_path
     end

@@ -37,17 +37,17 @@ class SurveyorGenerator < Rails::Generators::Base
     end
   end
   
-  def copy_assets
-    ["images", "javascripts", "stylesheets"].each do |asset_type|
-      empty_directory "public/#{asset_type}/surveyor"
-      Dir.glob(File.join(File.dirname(__FILE__), "templates", "assets", asset_type, "*.*")).map{|path| File.basename(path)}.each do |filename|
-        copy_file "assets/#{asset_type}/#{filename}", "public/#{asset_type}/surveyor/#{filename}"
-      end
-    end
-    empty_directory "public/stylesheets/sass"
-    copy_file "assets/stylesheets/sass/surveyor.sass", "public/stylesheets/sass/surveyor.sass"
-    copy_file "assets/stylesheets/sass/custom.sass", "public/stylesheets/sass/custom.sass"
-  end
+#  def copy_assets
+#    ["images", "javascripts", "stylesheets"].each do |asset_type|
+#      empty_directory "public/#{asset_type}/surveyor"
+#      Dir.glob(File.join(File.dirname(__FILE__), "templates", "assets", asset_type, "*.*")).map{|path| File.basename(path)}.each do |filename|
+#        copy_file "assets/#{asset_type}/#{filename}", "public/#{asset_type}/surveyor/#{filename}"
+#      end
+#    end
+#    empty_directory "public/stylesheets/sass"
+#    copy_file "assets/stylesheets/sass/surveyor.sass", "public/stylesheets/sass/surveyor.sass"
+#    copy_file "assets/stylesheets/sass/custom.sass", "public/stylesheets/sass/custom.sass"
+#  end
   
   def copy_survey
     # Surveys
