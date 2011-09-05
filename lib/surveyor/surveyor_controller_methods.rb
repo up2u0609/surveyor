@@ -2,7 +2,7 @@ module Surveyor
   module SurveyorControllerMethods
     def self.included(base)
       base.send :before_filter, :get_current_user, :only => [:new, :create]
-      base.send :layout, 'surveyor_default'
+      base.send :layout, 'surveyor/surveyor_default'
     end
 
     # Actions

@@ -11,6 +11,8 @@ module Surveyor
 
         # Scopes
         base.send :scope, :with_sections, {:include => :sections}
+        base.send :before_create, :default_args
+        base.send :before_create, :forge_access_code_and_title
         
         @@validations_already_included ||= nil
         unless @@validations_already_included
@@ -30,29 +32,19 @@ module Surveyor
         end
       end
 
-      # Instance methods
-      def initialize(*args)
-        super(*args)
-        default_args
-      end
-
       def default_args
         self.inactive_at ||= DateTime.now
         self.api_id ||= UUID.generate
       end
 
-      def title=(value)
-        return if value == self.title
-        adjusted_value = value
-        while Survey.find_by_access_code(Survey.to_normalized_string(adjusted_value))
+      def forge_access_code_and_title
+        adjusted_value = self.title
+        while Survey.find_by_access_code(Survey.to_normalized_string(self.title))
           i ||= 0
           i += 1
-          adjusted_value = "#{value} #{i.to_s}"
+          self.title = "#{adjusted_value} #{i.to_s}"
         end
-        self.access_code = Survey.to_normalized_string(adjusted_value)
-        super(adjusted_value)
-        # self.access_code = Survey.to_normalized_string(value)
-        # super
+        self.access_code = Survey.to_normalized_string(self.title)
       end
 
       def active?

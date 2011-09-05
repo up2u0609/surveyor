@@ -72,7 +72,19 @@ end
 class Surveyor::Survey < ActiveRecord::Base
   # block
   has_many :sections, :class_name => "Surveyor::SurveySection", :order => 'display_order', :dependent => :destroy , :foreign_key => "survey_id"
+  before_create :default_args
+  before_save :forge_access_code_and_title
   
+  def self.to_normalized_string(value)
+    # replace non-alphanumeric with "-". remove repeat "-"s. don't start or end with "-"
+    value.to_s.downcase.gsub(/[^a-z0-9]/,"-").gsub(/-+/,"-").gsub(/-$|^-/,"")
+  end
+
+  def default_args
+    self.inactive_at ||= DateTime.now
+    self.api_id ||= UUID.generate
+  end
+
   def self.parse_and_build(context, args, original_method, reference_identifier)
     # clear context
     context.delete_if{|k,v| true }
@@ -89,11 +101,20 @@ class Surveyor::Survey < ActiveRecord::Base
     context[:question_references] = {}
     context[:answer_references] = {}
   end
+  private
+  def forge_access_code_and_title
+    adjusted_value = self.title
+    while Surveyor::Survey.find_by_access_code(Surveyor::Survey.to_normalized_string(self.title))
+      i ||= 0
+      i += 1
+      self.title = "#{adjusted_value} #{i.to_s}"
+    end
+    self.access_code = Surveyor::Survey.to_normalized_string(self.title)
+  end
 end
 class Surveyor::SurveySection < ActiveRecord::Base
   # block
   has_many :questions, :order => "display_order ASC", :dependent => :destroy, :class_name => "Surveyor::Question" , :foreign_key => :survey_section_id
-  
   def self.parse_and_build(context, args, original_method, reference_identifier)
     # clear context
     context.delete_if{|k,v| !%w(survey question_references answer_references).map(&:to_sym).include?(k)}

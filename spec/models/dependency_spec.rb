@@ -88,6 +88,6 @@ describe Surveyor::Dependency, "with conditions" do
     Surveyor::DependencyCondition.make(:dependency => @dependency, :rule_key => "C")
     dc_ids = @dependency.dependency_conditions.map(&:id)
     @dependency.destroy
-    dc_ids.each{|id| DependencyCondition.find_by_id(id).should == nil}
+    dc_ids.each{|id| Surveyor::DependencyCondition.find_by_id(id).should == nil}
   end
 end

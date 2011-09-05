@@ -2,7 +2,7 @@ require "surveyor/engine"
 require 'surveyor/common'
 require 'surveyor/acts_as_response'
 require 'formtastic/surveyor_builder'
-require "surveyor/parser"
+Dir[File.dirname(__FILE__) + "/surveyor/models/*.rb"].each {|f| require f}
 #require 'tasks/surveyor'
 Formtastic::SemanticFormHelper.builder = Formtastic::SurveyorBuilder
 Formtastic::SemanticFormBuilder.default_text_area_height = 5

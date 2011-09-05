@@ -1,47 +1,37 @@
-#!/usr/bin/env rake
+require 'rubygems'
+require 'bundler'
 begin
-  require 'bundler/setup'
-rescue LoadError
-  puts 'You must `gem install bundler` and `bundle install` to run rake tasks'
+  Bundler.setup(:default, :development)
+rescue Bundler::BundlerError => e
+  $stderr.puts e.message
+  $stderr.puts "Run `bundle install` to install missing gems"
+  exit e.status_code
 end
-begin
-  require 'rdoc/task'
-rescue LoadError
-  require 'rdoc/rdoc'
-  require 'rake/rdoctask'
-  RDoc::Task = Rake::RDocTask
-end
-
 require 'rake'
-require 'rubygems/package_task'
+
+require 'jeweler'
+Jeweler::Tasks.new do |gem|
+  # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
+  gem.name = "surveyor"
+  gem.summary = "surveyor"
+  gem.description = "surveyor"
+  gem.version = "0.0.2"
+  gem.email = "johnson@secondbureau.com"
+  gem.authors = ["johnson"]
+  gem.add_dependency 'haml'
+  gem.add_dependency 'sass'
+  gem.add_dependency 'fastercsv'
+  gem.add_dependency 'formtastic'
+  gem.add_dependency 'uuid'
+  gem.add_development_dependency "yard", ">= 0"
+  gem.files = Dir["{lib}/**/*", "{app}/**/*", "{config}/**/*" , "{db}/**/*"]
+end
+Jeweler::RubygemsDotOrgTasks.new
 require 'rspec/core/rake_task'
 
 RSpec::Core::RakeTask.new do |t|
   t.pattern = 'spec/**/*_spec.rb'
 end
-
-begin
-  require 'jeweler'
-  Jeweler::Tasks.new do |gem|
-    gem.name = "surveyor"
-    gem.summary = %Q{A rails (gem) plugin to enable surveys in your application}
-    gem.email = "yoon@northwestern.edu"
-    gem.homepage = "http://github.com/NUBIC/surveyor"
-    gem.authors = ["Brian Chamberlain", "Mark Yoon"]
-    gem.add_dependency 'haml'
-    gem.add_dependency 'sass'
-    gem.add_dependency 'fastercsv'
-    gem.add_dependency 'formtastic'
-    gem.add_dependency 'uuid'
-    gem.add_development_dependency "yard", ">= 0"
-    gem.post_install_message = "Thanks for installing surveyor! The time has come to run the surveyor generator and migrate your database, even if you are upgrading."
-    # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
-  end
-  Jeweler::GemcutterTasks.new
-rescue LoadError
-  puts "Jeweler (or a dependency) not available. Install it with: gem install jeweler"
-end
-
 begin
   require 'yard'
   YARD::Rake::YardocTask.new

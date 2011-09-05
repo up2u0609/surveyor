@@ -1,7 +1,7 @@
 module Surveyor
   class ResultsController < ApplicationController
-    helper 'surveyor'
-    layout 'results' 
+    helper 'surveyor/surveyor'
+    layout 'surveyor/results' 
     def index
       @surveys = Surveyor::Survey.all
     end

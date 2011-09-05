@@ -16,10 +16,10 @@ describe Surveyor::Survey, "when saving a new one" do
     original.save.should be_true
     imposter = Surveyor::Survey.new(:title => "Foo")
     imposter.save.should be_true
-    imposter.title.should == "Foo 1"
+    imposter.title.should == "Foo 2"
     bandwagoneer = Surveyor::Survey.new(:title => "Foo")
     bandwagoneer.save.should be_true
-    bandwagoneer.title.should == "Foo 2"
+    bandwagoneer.title.should == "Foo 3"
   end
 
   it "should not adjust the title when updating itself" do
@@ -66,7 +66,7 @@ end
 # Methods
 describe Surveyor::Survey do
   before(:each) do
-    @survey = Surveyor::Survey.new
+    @survey = Surveyor::Survey.make
   end
 
   it "should be inactive by default" do

@@ -1,3 +1,4 @@
+require "surveyor/parser"
 desc "generate and load survey (specify FILE=surveys/your_survey.rb)"
 task :surveyor => :"surveyor:parse"
 
