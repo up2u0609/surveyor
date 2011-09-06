@@ -43,7 +43,7 @@ module Surveyor
     def edit
       @response_set = ResponseSet.find_by_access_code(params[:response_set_code], :include => {:responses => [:question, :answer]})
       if @response_set
-        @survey = Survey.with_sections.find_by_id(@response_set.survey_id)
+        @survey = Surveyor::Survey.with_sections.find_by_id(@response_set.survey_id)
         @sections = @survey.sections
         if params[:section]  
           @section = @sections.with_includes.find(section_id_from(params[:section])) || @sections.with_includes.first 

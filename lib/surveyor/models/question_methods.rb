@@ -14,6 +14,8 @@ module Surveyor
         # Scopes
         base.send :default_scope, :order => "display_order ASC"
         
+        base.send :before_create , :default_args
+        
         @@validations_already_included ||= nil
         unless @@validations_already_included
           # Validations
@@ -27,10 +29,6 @@ module Surveyor
       end
 
       # Instance Methods
-      def initialize(*args)
-        super(*args)
-        default_args
-      end
 
       def default_args
         self.is_mandatory ||= true
@@ -42,13 +40,6 @@ module Surveyor
         self.api_id ||= UUID.generate
       end
       
-      def pick=(val)
-        write_attribute(:pick, val.nil? ? nil : val.to_s)
-      end
-      def display_type=(val)
-        write_attribute(:display_type, val.nil? ? nil : val.to_s)
-      end
-
       def mandatory?
         self.is_mandatory == true
       end

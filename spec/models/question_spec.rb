@@ -24,7 +24,7 @@ describe Surveyor::Question, "when creating a new question" do
   it "should convert pick attribute to string" do
     @question.pick.should == "none"
     @question.pick = :one
-    @question.pick.should == "one"
+    @question.pick.should == :one
     @question.pick = nil
     @question.pick.should == nil
   end

@@ -156,6 +156,8 @@ class Surveyor::Question < ActiveRecord::Base
   has_one :dependency, :dependent => :destroy, :foreign_key => :question_id , :class_name => "Surveyor::Dependency"
   has_one :correct_answer, :dependent => :destroy, :foreign_key => :question_id , :class_name => "Surveyor::Answer"
   
+  before_create  :default_args
+  
   def self.parse_and_build(context, args, original_method, reference_identifier)
     # clear context
     context.delete_if{|k,v| %w(question dependency dependency_condition answer validation validation_condition).map(&:to_sym).include? k}
@@ -188,6 +190,16 @@ class Surveyor::Question < ActiveRecord::Base
       context_reference[:answer_references][reference_identifier] ||= {}
       print (self.correct_answer = context_reference[:answer_references][reference_identifier][correct]) ? "found correct answer:#{correct} " : "lost! correct answer:#{correct} "
     end
+  end
+private
+  def default_args
+    self.is_mandatory ||= true
+    self.display_type ||= "default"
+    self.pick ||= "none"
+    self.display_order ||= self.survey_section ? self.survey_section.questions.count : 0
+    self.data_export_identifier ||= Surveyor::Common.normalize(text)
+    self.short_text ||= text
+    self.api_id ||= UUID.generate
   end
 end
 class Surveyor::Dependency < ActiveRecord::Base
