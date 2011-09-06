@@ -6,8 +6,6 @@
   = ff.quiet_input :question_id unless q.pick == "one" # don't repeat question_id if we're on radio buttons
   = ff.quiet_input :id unless q.pick == "one" or r.new_record?
   = ff.quiet_input :response_group, :value => rg if q.pick != "one" && g && g.display_type == "repeater"
-  - puts q.text
-  - puts q.pick
   - case q.pick
   - when "one"
     = ff.input :answer_id, :as => :surveyor_radio, :collection => [[a_text(a), a.id]], :label => false, :input_html => {:class => a.css_class}, :response_class => a.response_class
