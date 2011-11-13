@@ -32,7 +32,7 @@ module Formtastic
         html_options[:checked] = selected_values.include?(value)
         html_options[:disabled] = disabled_values.include?(value) if disabled_option_is_present
         html_options[:id] = input_id
-        
+
         li_content = create_hidden_field_for_check_boxes(input_name, value_as_class) unless hidden_fields
         li_content << template.content_tag(:label,
           Formtastic::Util.html_safe("#{create_check_boxes(input_name, html_options, value, unchecked_value, hidden_fields)} #{escape_html_entities(label)}"),
@@ -41,7 +41,7 @@ module Formtastic
         li_content << basic_input_helper(:text_field, :string, :string_value, options) if options[:response_class] == "other_and_string"
         li_content << basic_input_helper(:text_field, :string, :string_value, options) if %w(string other_and_string).include?(options[:response_class])
         li_content << basic_input_helper(:text_area, :text, :text_value, options) if options[:response_class] == "text"
-        
+
         # li_options = value_as_class ? { :class => [method.to_s.singularize, value.to_s.downcase].join('_') } : {}
         Formtastic::Util.html_safe(li_content)
       end
@@ -68,7 +68,7 @@ module Formtastic
           Formtastic::Util.html_safe("#{radio_button(input_name, value, html_options)} #{escape_html_entities(label)}"),
           :for => input_id
         )
-        
+
         li_content << basic_input_helper(:text_field, :string, :integer_value, options) if options[:response_class] == 'integer'
         li_content << basic_input_helper(:text_field, :string, :string_value, options) if options[:response_class] == 'string'
 
@@ -83,3 +83,4 @@ module Formtastic
     end
   end
 end
+
